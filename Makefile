@@ -1,3 +1,15 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
+#    Updated: 2016/05/21 20:31:37 by ebouther         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
 ifeq ($(HOSTTYPE),)
 	HOSTTYPE := $(shell uname -m)_$(shell uname -s)
 endif
@@ -5,7 +17,8 @@ endif
 NAME = libft_malloc_$(HOSTTYPE).so
 
 CC = gcc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS =  -Wall -Wextra -Werror
+DYLDFLAGS = -shared -fPIC
 LFLAGS = -L$(LIBFT_PATH) -lft
 IFLAGS = -I $(INC_DIR)
 
@@ -35,7 +48,8 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c $(INC)
 	$(CC) $(CFLAGS) $(IFLAGS) -o $@ -c $<
 
 $(NAME): $(OBJ)
-	ar rcs $(NAME) $(OBJ)
+	$(CC) $(DYLDFLAGS) $< -o $(NAME)
+	rm -f libft_malloc.so
 	ln -s libft_malloc_$(HOSTTYPE).so libft_malloc.so 
 
 clean:
@@ -48,4 +62,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all re fclean clean $(LIBFT)
+.PHONY: all re fclean clean $(LIBFT) dyld dyld_rm
