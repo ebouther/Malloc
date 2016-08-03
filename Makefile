@@ -6,7 +6,7 @@
 #    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
-#    Updated: 2016/05/21 20:31:37 by ebouther         ###   ########.fr        #
+#    Updated: 2016/05/28 21:13:40 by ebouther         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,7 @@ LIBFT_BIN = libft.a
 LIBFT = $(addprefix $(LIBFT_PATH), $(LIBFT_BIN))
 
 INC_DIR = ./inc/
-INCLUDES = malloc.h
+INC_FILES = malloc.h
 
 SRC_DIR = ./src/
 SRC_FILES = malloc.c
