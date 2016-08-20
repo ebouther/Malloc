@@ -6,13 +6,11 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2016/08/03 14:11:09 by ebouther         ###   ########.fr       */
+/*   Updated: 2016/08/20 20:00:21 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
-
-static t_malloc_zones	g_zones = (t_malloc_zones){NULL, NULL, NULL};
 
 static enum e_zones	zone_size(size_t size)
 {
@@ -145,7 +143,7 @@ void	*malloc(size_t size)
 	return (get_address(zone_size(size), size));
 }
 
-#include <stdio.h>
+
 int main()
 {
 	int	*nb[4] = {NULL, NULL, NULL, NULL};
@@ -168,10 +166,8 @@ int main()
 	printf("Nb1: '%d'\n", *(nb[1]));
 	printf("Nb2: '%d'\n", *(nb[2]));
 	printf("Nb3: '%d'\n", *(nb[3]));
+	free(nb[2]);
+	printf("Nb: '%d'\n", *(nb[2]));
 	return (0);
 }
 
-/*void	free(void *ptr);
-{
-	munmap(ptr, );
-}*/

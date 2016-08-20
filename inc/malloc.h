@@ -6,14 +6,13 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2016/08/03 02:19:41 by ebouther         ###   ########.fr       */
+/*   Updated: 2016/08/20 20:00:21 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MALLOC_H
 # define MALLOC_H
 
-# include "libft.h"
 # include <stdlib.h>
 # include <sys/mman.h>
 # include <sys/resource.h>
@@ -21,10 +20,10 @@
 
 # define MAX_TINY 992
 # define MAX_SMALL 126999
-
 # define MAX_PER_ZONE 142
 
-//void	free(void *ptr);
+
+void	free(void *ptr);
 void	*malloc(size_t size);
 //void	*realloc(void *ptr, size_t size);
 //void	show_alloc_mem();
@@ -57,5 +56,10 @@ typedef struct		s_malloc_zones
 	t_zone			*small;
 	t_block			*large;
 }					t_malloc_zones;
+
+
+static t_malloc_zones	g_zones = (t_malloc_zones){NULL, NULL, NULL};
+
+#include <stdio.h>
 
 #endif
