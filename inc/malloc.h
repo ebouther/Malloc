@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2016/08/20 20:00:21 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/03/19 19:39:44 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,15 @@
 # define MAX_SMALL 126999
 # define MAX_PER_ZONE 142
 
+# define TRUE 1
+# define FALSE 0
 
 void	free(void *ptr);
 void	*malloc(size_t size);
 //void	*realloc(void *ptr, size_t size);
 //void	show_alloc_mem();
+
+typedef char t_bool;
 
 enum	e_zones
 {
@@ -39,13 +43,15 @@ typedef struct		s_block
 {
 	void			*addr;
 	size_t			size;
+	t_bool			freed;
 	struct s_block	*next;
 }					t_block;
 
 typedef struct		s_zone
 {
 	void			*memory;
-	size_t			remaining;
+	size_t			remaining; // "new memory" remaining
+	//size_t			old_remaining; // old blocks that were freed
 	t_block			*blocks;
 	struct s_zone	*next;
 }					t_zone;
@@ -58,8 +64,8 @@ typedef struct		s_malloc_zones
 }					t_malloc_zones;
 
 
-static t_malloc_zones	g_zones = (t_malloc_zones){NULL, NULL, NULL};
+extern t_malloc_zones	g_zones;
 
-#include <stdio.h>
+#include <stdio.h> // norme
 
 #endif

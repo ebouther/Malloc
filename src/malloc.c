@@ -6,11 +6,17 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2016/08/20 20:00:21 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/03/19 19:26:15 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
+
+t_malloc_zones g_zones = (t_malloc_zones){NULL, NULL, NULL};
+
+/*
+**  Return the correct zone type (enum e_zones) for the allocation @size.
+*/
 
 static enum e_zones	zone_size(size_t size)
 {
@@ -23,6 +29,11 @@ static enum e_zones	zone_size(size_t size)
 	else
 		return ((enum e_zones)(-1));
 }
+
+/*
+**  If there's enough memory (@alloc_size) in this @zone
+**  check if it can be saved in an existing or a new block.
+*/
 
 static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 {
@@ -37,8 +48,7 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
 				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 			return (NULL);
-		blk->next->next = NULL;
-		blk->next->size = alloc_size;
+		*(blk->next) = (t_block){.next = NULL, .size = alloc_size, .freed = 0};
 		return (blk->next->addr = blk->addr + blk->size + 1);
 	}
 	return (NULL);
@@ -55,12 +65,13 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		return (-1);
 	if ((zone->blocks = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) 
 		return (-1);
-	*(zone->blocks) = (t_block){zone->memory, alloc_size, NULL};
+	*(zone->blocks) = (t_block){zone->memory, alloc_size, 0, NULL};
 	zone->remaining = max_size - alloc_size;
 	zone->next = NULL;
 	*z = zone;
+	printf("ZONE: '%p' \n", zone);
 	return (0);
 }
 
@@ -72,8 +83,10 @@ static void	*allocate_block(t_zone **z, size_t max_size, size_t alloc_size)
 	zone = *z;
 	if (*z == NULL)
 	{
+		printf("ALLOC NEW ZONE\n");
 		if (new_zone(z, max_size, alloc_size) == -1)
 			return (NULL);
+		printf(" 2 ZONE: '%p' \n", *z);
 		return ((*z)->memory);
 	}
 	else
@@ -128,13 +141,21 @@ static void	*get_address(enum e_zones zone, size_t size)
 
 	addr = NULL;
 	if (zone == TINY)
+	{
 		addr = allocate_block(&g_zones.tiny,
 			(size_t)(MAX_TINY * MAX_PER_ZONE * getpagesize()), size);
+		printf(" 3 ZONE: '%p' \n", g_zones.tiny);
+	}
 	else if (zone == SMALL)
+	{
 		addr = allocate_block(&g_zones.small,
 			(size_t)(MAX_SMALL * MAX_PER_ZONE * getpagesize()), size);
+		printf(" 3 ZONE: '%p' \n", g_zones.small);
+	}
 	else if (zone == LARGE)
+	{
 		addr = alloc_large(&g_zones.large, size);
+	}
 	return (addr);
 }
 
@@ -166,8 +187,10 @@ int main()
 	printf("Nb1: '%d'\n", *(nb[1]));
 	printf("Nb2: '%d'\n", *(nb[2]));
 	printf("Nb3: '%d'\n", *(nb[3]));
-	free(nb[2]);
-	printf("Nb: '%d'\n", *(nb[2]));
+	printf("1) TINY: '%p' | SMALL : '%p' \n", g_zones.tiny, g_zones.small);
+
+	free(nb[0]);
+
 	return (0);
 }
 
