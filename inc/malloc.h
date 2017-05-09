@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/03/19 19:39:44 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/09 15:48:13 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 
 # define MAX_TINY 992
 # define MAX_SMALL 126999
-# define MAX_PER_ZONE 142
+# define MAX_PER_ZONE 10
 
 # define TRUE 1
 # define FALSE 0
@@ -50,7 +50,7 @@ typedef struct		s_block
 typedef struct		s_zone
 {
 	void			*memory;
-	size_t			remaining; // "new memory" remaining
+	size_t			remaining; // "new memory" remaining (at the end)
 	//size_t			old_remaining; // old blocks that were freed
 	t_block			*blocks;
 	struct s_zone	*next;

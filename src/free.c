@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/03/19 20:11:03 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/09 17:16:39 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ int check_if_unmapable(t_block **blocks)
 		if (block->freed == FALSE)
 			return (0);
 	}
+	printf("UNMAP ZONE");
 	return (1);
 }
 
@@ -52,14 +53,12 @@ int	parse_blocks(void *ptr, t_block **blocks)
 	//}
 	while (block)
 	{
-		printf("ADDR : '%d' | PTR: '%d' \n", (unsigned int)block->addr, (unsigned int)ptr);
 		if (block->addr == ptr)
 		{
-			printf("PTR FOUND \n");
 			//if (munmap(block->addr, block->size) == -1)
 			//	return (1);
 			block->freed = TRUE;
-			tmp->next = block->next;
+			//tmp->next = block->next;
 			//if (munmap(block, sizeof(t_block)) == -1)
 			//	return (-1);
 			return ((int)block->size);
@@ -81,18 +80,15 @@ int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 
 	while (zone)
 	{
-		printf("ZONE\n");
-		if ((unsigned int)zone->memory <= (unsigned int)ptr
-			&& (unsigned int)ptr < (unsigned int)zone->memory + zone_size)
+		if (((unsigned int)zone->memory <= (unsigned int)ptr)
+			&& ((unsigned int)ptr < (unsigned int)zone->memory + zone_size))
 		{
-			printf("PARSE_BLK\n");
 			if ((ret = parse_blocks(ptr, &zone->blocks)) == -1)
 				return (-1);
 			else if (ret > 0)
 			{
-				if (zone->remaining <= 0)
-					check_if_unmapable(&zone->blocks);
-				//zone->remaining -= ret;
+				//if (zone->remaining <= 0)
+				//	check_if_unmapable(&zone->blocks);
 				return (1);
 			}
 		}
@@ -107,20 +103,19 @@ void	free(void *ptr)
 	int	ret;
 
 	page_size = getpagesize();
-	printf("TINY: '%p' | SMALL : '%p' \n", g_zones.tiny, g_zones.small);
-	printf("PARSE TINY\n");
+	//printf("PARSE TINY\n");
 	if ((ret = parse_zone(ptr, g_zones.tiny,
 			(size_t)(MAX_TINY * MAX_PER_ZONE * page_size))) == -1
 		|| ret == 1)
 		return ;
 
-	printf("PARSE SMALL\n");
+	//printf("PARSE SMALL\n");
 	if ((ret = parse_zone(ptr, g_zones.small,
 			(size_t)(MAX_SMALL * MAX_PER_ZONE * page_size))) == -1
 		|| ret == 1)
 		return ;
 
-	printf("PARSE LARGE\n");
+	//printf("PARSE LARGE\n");
 	if (parse_blocks(ptr, &g_zones.large) == -1)
 		return ;
 }
