@@ -6,13 +6,55 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/09 17:17:28 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/09 20:08:25 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 
 t_malloc_zones g_zones = (t_malloc_zones){NULL, NULL, NULL};
+
+static void parse_blocks(t_block **blocks)
+{
+	t_block	*block;
+
+	block = *blocks;
+	while (block)
+	{
+		if (block->freed == FALSE)
+			printf("%x - %x : %d octets\n", block->addr, block->addr + block->size, block->size);
+		block = block->next;
+	}
+}
+
+static void parse_zone(const char *zone_type, t_zone *zone)
+{
+	while (zone)
+	{
+		printf("%s%x \n", zone_type, zone->memory);
+		parse_blocks(&zone->blocks);
+		zone = zone->next;
+	}
+
+}
+
+void	show_alloc_mem() {
+//		   TINY : 0xA0000
+//		   0xA0020 - 0xA004A : 42 octets
+//		   0xA006A - 0xA00BE : 84 octets
+//		   SMALL : 0xAD000
+//		   0xAD020 - 0xADEAD : 3725 octets
+//		   LARGE : 0xB0000
+//		   0xB0020 - 0xBBEEF : 48847 octets
+//		   Total : 52698 octets
+
+    parse_zone("TINY : ", g_zones.tiny);
+    parse_zone("SMALL : ", g_zones.small);
+	printf("LARGE :");
+    parse_blocks(&g_zones.large);
+}
+
+
 
 /*
 **  Return the correct zone type (enum e_zones) for the allocation @size.
@@ -44,10 +86,8 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 	{
 		if ((blk = zone->blocks) == NULL)
 			return (NULL);
-		printf(" CHECK_FOR_BLOCKS 0\n");
 		while (blk->next != NULL)
 			blk = blk->next;
-		printf(" NEW BLOCK\n");
 		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
 				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 			return (NULL);
@@ -56,7 +96,7 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 								 .freed = 0,
 								 .addr = blk->addr + blk->size + 1};
 		zone->remaining -= alloc_size;
-		printf(" RETURN BLOCK = %x \n", blk->next->addr);
+		//printf(" RETURN BLOCK = %x \n", blk->next->addr);
 		return (blk->next->addr);
 	}
 	return (NULL);
@@ -172,13 +212,13 @@ static void	*get_address(enum e_zones zone, size_t size)
 
 void	*malloc(size_t size)
 {
-	printf("=======================\n");
+	printf("==== SIZE : %u ====\n", size);
 	return (get_address(zone_size(size), size));
 }
 
 int main()
 {
-	int alloc_length = 1000;
+	int alloc_length = 100;
 	char **alloc_array = NULL;
 
 	if ((alloc_array = (char **)malloc(sizeof(char *) * alloc_length)) == NULL)
@@ -186,12 +226,30 @@ int main()
 	
 	int i = 0;
 	while (i < alloc_length) {
-		if ((alloc_array[i] = (char *)malloc(sizeof(char) * 500)) == NULL)
-			printf("Error malloc\n");
-		alloc_array[i][0] = 'a' + (i % 26);
-		alloc_array[i][499] = 'a' + (i % 26);
+		if (i % 2 == 0) {
+			if ((alloc_array[i] = (char *)malloc(sizeof(char) * 500)) == NULL)
+				printf("Error malloc\n");
+			alloc_array[i][0] = 'b';
+			alloc_array[i][499] = 'b';
+		}
 		i++;
 	}
+
+	i = 0;
+	while (i < alloc_length) {
+		if (i % 2 == 1) {
+			if ((alloc_array[i] = (char *)malloc(sizeof(char) * 10)) == NULL)
+				printf("Error malloc\n");
+			alloc_array[i][0] = 'a';
+			alloc_array[i][9] = 'a';
+		}
+		i++;
+	}
+
+
+	show_alloc_mem();
+
+
 
 	i = 0;
 	while (i < alloc_length) {
