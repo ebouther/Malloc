@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/09 20:08:25 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/10 20:28:23 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,15 +39,6 @@ static void parse_zone(const char *zone_type, t_zone *zone)
 }
 
 void	show_alloc_mem() {
-//		   TINY : 0xA0000
-//		   0xA0020 - 0xA004A : 42 octets
-//		   0xA006A - 0xA00BE : 84 octets
-//		   SMALL : 0xAD000
-//		   0xAD020 - 0xADEAD : 3725 octets
-//		   LARGE : 0xB0000
-//		   0xB0020 - 0xBBEEF : 48847 octets
-//		   Total : 52698 octets
-
     parse_zone("TINY : ", g_zones.tiny);
     parse_zone("SMALL : ", g_zones.small);
 	printf("LARGE :");
@@ -84,21 +75,50 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 	//printf(" CHECK_FOR_BLOCKS REMAINING : %zu | SIZE : %zu | zone memory : %x\n", zone->remaining, alloc_size, zone->memory);
 	if (zone->remaining >= alloc_size)
 	{
+		printf(" ALLOC_SIZE : %zu | REMAINING : %zu \n", alloc_size, zone->remaining);
 		if ((blk = zone->blocks) == NULL)
 			return (NULL);
+		if (!blk->next)
+			printf("[BLK INFO] LOOP 1: ADDR : %x | SIZE : %zu | NEXT : %x \n",
+				blk->addr,
+				blk->size,
+				blk->next);
 		while (blk->next != NULL)
+		{
+			printf("[BLK INFO (%x)] LOOP: ADDR : %x | SIZE : %zu | NEXT : %x \n",
+				blk,
+				blk->addr,
+				blk->size,
+				blk->next);
 			blk = blk->next;
+		}
+		printf("[BLK INFO (%x)] LOOP LAST: ADDR : %x | SIZE : %zu | NEXT : %x \n",
+			blk,
+			blk->addr,
+			blk->size,
+			blk->next);
 		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
 				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+		{
+			printf("/!\\ ERROR: mmap error\n");
 			return (NULL);
+		}
+		printf("NEXT %x\n", blk->next);
 		*(blk->next) = (t_block){.next = NULL,
 								 .size = alloc_size,
-								 .freed = 0,
+								 .freed = FALSE,
 								 .addr = blk->addr + blk->size + 1};
+
+		printf("[BLK INFO (%x)]: ADDR : %x | SIZE : %zu | NEXT : %x \n",
+				blk->next,
+				blk->next->addr,
+				blk->next->size,
+				blk->next->next);
 		zone->remaining -= alloc_size;
-		//printf(" RETURN BLOCK = %x \n", blk->next->addr);
+		printf(" RETURN NEW BLOCK = %x \n", blk->next->addr);
 		return (blk->next->addr);
 	}
+	printf("\n");
 	return (NULL);
 }
 
@@ -112,15 +132,28 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 	if ((zone->memory = mmap(NULL, max_size, PROT_READ | PROT_WRITE,
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		return (-1);
-	if ((zone->blocks = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+	if ((zone->blocks = (t_block *)mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) 
 		return (-1);
+	printf("NEW ZONE NEXT %x\n", zone->blocks->next);
 	*(zone->blocks) = (t_block){.next = NULL,
 								 .size = alloc_size,
-								 .freed = 0,
+								 .freed = FALSE,
 								 .addr = zone->memory};
-	//printf(" 1 RETURN ZONE FIRST BLOCK = %x \n", zone->blocks->addr);
-	zone->remaining = max_size - alloc_size;
+
+	printf("[BLK INFO (%x)] NEW ZONE: ADDR : %x | SIZE : %zu | NEXT : %x \n",
+			zone->blocks,
+			zone->blocks->addr,
+			zone->blocks->size,
+			zone->blocks->next);
+
+	printf(" NEW ZONE MEMORY = %d | ALLOC SIZE: %zu | FIRST ADDR : %x | LAST ADDR : %x\n",
+			max_size,
+			alloc_size,
+			zone->memory,
+			zone->memory + max_size);
+	zone->remaining = max_size - alloc_size - 10; // /!\ REMOVE -10 DBG
+	printf(" 2 ZONE REMAINING = %d \n", zone->remaining);
 	zone->next = NULL;
 	*z = zone;
 	return (0);
@@ -141,11 +174,12 @@ static void	*allocate_block(t_zone **z, size_t max_size, size_t alloc_size)
 	}
 	else
 	{
-		if ((addr = check_for_blocks(zone, alloc_size)) != NULL)
+		if (printf("1 CHECK_FOR_BLK\n") && (addr = check_for_blocks(zone, alloc_size)) != NULL)
 			return (addr);
 		printf(" CHECKED_BLOCKS \n");
 		while (zone->next != NULL)
 		{
+			printf("2 CHECK_FOR_BLK\n");
 			if ((addr = check_for_blocks(zone->next, alloc_size)) != NULL)
 				return (addr);
 			zone = zone->next;
@@ -218,7 +252,7 @@ void	*malloc(size_t size)
 
 int main()
 {
-	int alloc_length = 100;
+	int alloc_length = 90;
 	char **alloc_array = NULL;
 
 	if ((alloc_array = (char **)malloc(sizeof(char *) * alloc_length)) == NULL)
@@ -227,18 +261,12 @@ int main()
 	int i = 0;
 	while (i < alloc_length) {
 		if (i % 2 == 0) {
-			if ((alloc_array[i] = (char *)malloc(sizeof(char) * 500)) == NULL)
+			if ((alloc_array[i] = (char *)malloc(sizeof(char) * 200)) == NULL)
 				printf("Error malloc\n");
 			alloc_array[i][0] = 'b';
 			alloc_array[i][499] = 'b';
-		}
-		i++;
-	}
-
-	i = 0;
-	while (i < alloc_length) {
-		if (i % 2 == 1) {
-			if ((alloc_array[i] = (char *)malloc(sizeof(char) * 10)) == NULL)
+		} else {
+			if ((alloc_array[i] = (char *)malloc(sizeof(char) * 10)) == NULL) // 10 - 11 - 12 sgft
 				printf("Error malloc\n");
 			alloc_array[i][0] = 'a';
 			alloc_array[i][9] = 'a';
@@ -246,16 +274,28 @@ int main()
 		i++;
 	}
 
+	//i = 0;
+	//while (i < alloc_length) {
+	//	if (i % 2 == 1) {
+	//		if ((alloc_array[i] = (char *)malloc(sizeof(char) * 10)) == NULL) // 10 - 11 - 12 sgft
+	//			printf("Error malloc\n");
+	//		alloc_array[i][0] = 'a';
+	//		alloc_array[i][9] = 'a';
+	//	}
+	//	i++;
+	//}
 
+
+	printf("SHOW ALLOC MEM:\n");
 	show_alloc_mem();
 
 
 
 	i = 0;
 	while (i < alloc_length) {
-		printf("FIRST : %c", alloc_array[i][0]);
-		printf(" | LAST : %c", alloc_array[i][499]);
-		printf("\n");
+		//printf("FIRST : %c", alloc_array[i][0]);
+		//printf(" | LAST : %c", alloc_array[i][499]);
+		//printf("\n");
 		free(alloc_array[i]);
 		i++;
 	}
