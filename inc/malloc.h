@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/10 23:20:52 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 00:28:02 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@
 void	free(void *ptr);
 void	*malloc(size_t size);
 //void	*realloc(void *ptr, size_t size);
-//void	show_alloc_mem();
+void	show_alloc_mem();
 
 typedef char t_bool;
 
@@ -50,7 +50,7 @@ typedef struct		s_block
 typedef struct		s_zone
 {
 	void			*memory;
-	int				remaining; // "new memory" remaining (at the end)
+	size_t			remaining; // "new memory" remaining (at the end)
 	//size_t			old_remaining; // old blocks that were freed
 	t_block			*blocks;
 	struct s_zone	*next;

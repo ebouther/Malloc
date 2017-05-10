@@ -6,7 +6,7 @@
 #    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
-#    Updated: 2016/05/28 21:13:40 by ebouther         ###   ########.fr        #
+#    Updated: 2017/05/11 00:44:04 by ebouther         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ INC_DIR = ./inc/
 INC_FILES = malloc.h
 
 SRC_DIR = ./src/
-SRC_FILES = malloc.c
+SRC_FILES = malloc.c free.c
 
 OBJ_DIR = ./obj/
 OBJ_FILES = $(SRC_FILES:.c=.o)
@@ -48,7 +48,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c $(INC)
 	$(CC) $(CFLAGS) $(IFLAGS) -o $@ -c $<
 
 $(NAME): $(OBJ)
-	$(CC) $(DYLDFLAGS) $< -o $(NAME)
+	$(CC) $(DYLDFLAGS) $^ -o $(NAME)
 	rm -f libft_malloc.so
 	ln -s libft_malloc_$(HOSTTYPE).so libft_malloc.so 
 
@@ -62,4 +62,4 @@ fclean: clean
 
 re: fclean all
 
-.PHONY: all re fclean clean $(LIBFT) dyld dyld_rm
+.PHONY: all re fclean clean $(LIBFT) 

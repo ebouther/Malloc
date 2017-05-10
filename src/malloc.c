@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/10 23:41:02 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 00:27:16 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@ static void parse_blocks(t_block **blocks)
 	while (block)
 	{
 		if (block->freed == FALSE)
-			printf("%x - %x : %d octets\n", block->addr, block->addr + block->size, block->size);
+			printf("%x - %x : %zu octets\n",
+					(unsigned int)block->addr,
+					(unsigned int)(block->addr + block->size),
+					(unsigned long)block->size);
 		block = block->next;
 	}
 }
@@ -31,7 +34,7 @@ static void parse_zone(const char *zone_type, t_zone *zone)
 {
 	while (zone)
 	{
-		printf("%s%x \n", zone_type, zone->memory);
+		printf("%s%x \n", zone_type, (unsigned int)zone->memory);
 		parse_blocks(&zone->blocks);
 		zone = zone->next;
 	}
@@ -115,10 +118,10 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 	//			blk->next->size,
 	//			blk->next->next);
 		zone->remaining -= alloc_size;
-		printf("REMAINING : %d | new blk addr %x | blk addr + remaining %x\n",
-				zone->remaining,
-				blk->next->addr,
-				zone->remaining +  blk->next->addr);
+		//printf("REMAINING : %d | new blk addr %x | blk addr + remaining %x\n",
+		//		zone->remaining,
+		//		blk->next->addr,
+		//		zone->remaining +  blk->next->addr);
 		//printf(" RETURN NEW BLOCK = %x \n", blk->next->addr);
 		return (blk->next->addr);
 	}
@@ -137,7 +140,6 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		return (-1);
 	//printf("!!!!!!! MEMSET !!!!!!\n");
-	memset(zone->memory, 'a', max_size);
 	if ((zone->blocks = (t_block *)mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) 
 		return (-1);
@@ -146,18 +148,18 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 								 .size = alloc_size,
 								 .freed = FALSE,
 								 .addr = zone->memory};
-
-	printf(" NEW ZONE MEMORY: SIZE = %d | ALLOC SIZE: %zu | FIRST ADDR : %x | LAST ADDR : %x\n",
-			max_size,
-			alloc_size,
-			zone->memory,
-			zone->memory + max_size);
-
-	printf("[BLK INFO (%x)] NEW ZONE: ADDR : %x | SIZE : %zu | NEXT : %x \n",
-			zone->blocks,
-			zone->blocks->addr,
-			zone->blocks->size,
-			zone->blocks->next);
+//
+//	printf(" NEW ZONE MEMORY: SIZE = %d | ALLOC SIZE: %zu | FIRST ADDR : %x | LAST ADDR : %x\n",
+//			max_size,
+//			alloc_size,
+//			zone->memory,
+//			zone->memory + max_size);
+//
+//	printf("[BLK INFO (%x)] NEW ZONE: ADDR : %x | SIZE : %zu | NEXT : %x \n",
+//			zone->blocks,
+//			zone->blocks->addr,
+//			zone->blocks->size,
+//			zone->blocks->next);
 
 
 	zone->remaining = max_size - alloc_size; // /!\ REMOVE -10 DBG
@@ -258,66 +260,66 @@ void	*malloc(size_t size)
 	return (get_address(zone_size(size), size));
 }
 
-int main()
-{
-	int alloc_length = 880;
-	char **alloc_array = NULL;
-	int len_1 = 200;
-	int len_2 = 10;
-
-	if ((alloc_array = (char **)malloc(sizeof(char *) * alloc_length)) == NULL)
-		printf("Error malloc\n");
-	
-	int i = 0;
-	while (i < alloc_length) {
-		//if (i % 2 == 0) {
-		//	if ((alloc_array[i] = (char *)malloc(sizeof(char) * len_1)) == NULL)
-		//		printf("Error malloc\n");
-		//	//alloc_array[i][0] = 'c';
-		//	//alloc_array[i][len_1 - 1] = 'c';
-		//} else {
-			if ((alloc_array[i] = (char *)malloc(sizeof(char) * len_2)) == NULL) // 10 - 11 - 12 sgft
-				printf("Error malloc\n");
-			//printf("MAIN WRITE 'a' at %x\n", alloc_array[i]);
-			alloc_array[i][0] = 'a';
-			alloc_array[i][1] = 'a';
-			alloc_array[i][2] = 'a';
-			alloc_array[i][3] = 'a';
-			alloc_array[i][4] = 'a';
-			alloc_array[i][5] = 'a';
-			//alloc_array[i][len_2 - 1] = 'a';
-		//}
-		i++;
-	}
-
-	//i = 0;
-	//while (i < alloc_length) {
-	//	if (i % 2 == 1) {
-	//		if ((alloc_array[i] = (char *)malloc(sizeof(char) * 10)) == NULL) // 10 - 11 - 12 sgft
-	//			//printf("Error malloc\n");
-	//		alloc_array[i][0] = 'a';
-	//		alloc_array[i][9] = 'a';
-	//	}
-	//	i++;
-	//}
-
-
-	//printf("SHOW ALLOC MEM:\n");
-	show_alloc_mem();
-
-
-
-	i = 0;
-	while (i < alloc_length) {
-		////printf("FIRST : %c", alloc_array[i][0]);
-		////printf(" | LAST : %c", alloc_array[i][499]);
-		////printf("\n");
-		free(alloc_array[i]);
-		i++;
-	}
-	free(alloc_array);
-	return (0);
-}
+//int main()
+//{
+//	int alloc_length = 880;
+//	char **alloc_array = NULL;
+//	int len_1 = 200;
+//	int len_2 = 10;
+//
+//	if ((alloc_array = (char **)malloc(sizeof(char *) * alloc_length)) == NULL)
+//		printf("Error malloc\n");
+//	
+//	int i = 0;
+//	while (i < alloc_length) {
+//		if (i % 2 == 0) {
+//			if ((alloc_array[i] = (char *)malloc(sizeof(char) * len_1)) == NULL)
+//				printf("Error malloc\n");
+//			//alloc_array[i][0] = 'c';
+//			//alloc_array[i][len_1 - 1] = 'c';
+//		} else {
+//			if ((alloc_array[i] = (char *)malloc(sizeof(char) * len_2)) == NULL) // 10 - 11 - 12 sgft
+//				printf("Error malloc\n");
+//			//printf("MAIN WRITE 'a' at %x\n", alloc_array[i]);
+//			alloc_array[i][0] = 'a';
+//			alloc_array[i][1] = 'a';
+//			alloc_array[i][2] = 'a';
+//			alloc_array[i][3] = 'a';
+//			alloc_array[i][4] = 'a';
+//			alloc_array[i][5] = 'a';
+//			//alloc_array[i][len_2 - 1] = 'a';
+//		}
+//		i++;
+//	}
+//
+//	//i = 0;
+//	//while (i < alloc_length) {
+//	//	if (i % 2 == 1) {
+//	//		if ((alloc_array[i] = (char *)malloc(sizeof(char) * 10)) == NULL) // 10 - 11 - 12 sgft
+//	//			//printf("Error malloc\n");
+//	//		alloc_array[i][0] = 'a';
+//	//		alloc_array[i][9] = 'a';
+//	//	}
+//	//	i++;
+//	//}
+//
+//
+//	//printf("SHOW ALLOC MEM:\n");
+//	show_alloc_mem();
+//
+//
+//
+//	i = 0;
+//	while (i < alloc_length) {
+//		////printf("FIRST : %c", alloc_array[i][0]);
+//		////printf(" | LAST : %c", alloc_array[i][499]);
+//		////printf("\n");
+//		free(alloc_array[i]);
+//		i++;
+//	}
+//	free(alloc_array);
+//	return (0);
+//}
 
 
 //int main()
