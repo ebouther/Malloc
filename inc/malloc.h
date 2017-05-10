@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/11 00:28:02 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 00:45:28 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 
 void	free(void *ptr);
 void	*malloc(size_t size);
-//void	*realloc(void *ptr, size_t size);
+void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem();
 
 typedef char t_bool;
