@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/09 17:38:56 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/10 23:15:56 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,8 @@ int	parse_blocks(void *ptr, t_block **blocks)
 	//}
 	while (block)
 	{
-		printf("ADDR : %x\n", block);
-		printf("PTR : %x\n", ptr);
+		//printf("ADDR : %x\n", block);
+		//printf("PTR : %x\n", ptr);
 		if (block->addr == ptr)
 		{
 			//if (munmap(block->addr, block->size) == -1)

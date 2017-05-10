@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/09 19:47:36 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/10 23:20:52 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ typedef struct		s_block
 typedef struct		s_zone
 {
 	void			*memory;
-	size_t			remaining; // "new memory" remaining (at the end)
+	int				remaining; // "new memory" remaining (at the end)
 	//size_t			old_remaining; // old blocks that were freed
 	t_block			*blocks;
 	struct s_zone	*next;
