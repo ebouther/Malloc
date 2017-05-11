@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/11 00:45:28 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 15:24:34 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,13 @@
 # include <sys/mman.h>
 # include <sys/resource.h>
 # include <unistd.h>
+
+# define DEBUG 1
+# define INFO 1
+
+# define NO_COLOR "\033[0m"
+# define DEBUG_COLOR "\033[32m"
+# define INFO_COLOR "\033[36m"
 
 # define MAX_TINY 992
 # define MAX_SMALL 126999
@@ -51,7 +58,7 @@ typedef struct		s_zone
 {
 	void			*memory;
 	size_t			remaining; // "new memory" remaining (at the end)
-	//size_t			old_remaining; // old blocks that were freed
+	//size_t			freed_blk_size; // biggest old blocks that was freed
 	t_block			*blocks;
 	struct s_zone	*next;
 }					t_zone;
