@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/11 15:24:34 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 17:28:22 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ enum	e_zones
 typedef struct		s_block
 {
 	void			*addr;
-	size_t			size;
+	size_t			size; // That could be removed
 	t_bool			freed;
 	struct s_block	*next;
 }					t_block;
@@ -57,8 +57,8 @@ typedef struct		s_block
 typedef struct		s_zone
 {
 	void			*memory;
-	size_t			remaining; // "new memory" remaining (at the end)
-	//size_t			freed_blk_size; // biggest old blocks that was freed
+	size_t			remaining;
+	size_t			freed_blks_nb;
 	t_block			*blocks;
 	struct s_zone	*next;
 }					t_zone;

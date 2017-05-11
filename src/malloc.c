@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/11 16:04:18 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 17:09:27 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,43 @@ static enum e_zones	zone_size(size_t size)
 		return ((enum e_zones)(-1));
 }
 
+
+static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
+{
+	blk->freed = FALSE;
+	if (blk->size == alloc_size)
+	{
+		zone->freed_blks_nb -= 1;
+		if (DEBUG)
+		{
+			printf("%sUSE OLD BLOCK MEMORY AT ADDR : %x\nFreed blks left in zone : %zu%s\n",
+				DEBUG_COLOR,
+				blk->addr,
+				zone->freed_blks_nb,
+				NO_COLOR);
+		}
+		return (blk->addr);
+	}
+	else
+	{
+		if (DEBUG)
+			printf("%sDIVIDE AND USE OLD BLOCK AT ADDR : %x%s\n", DEBUG_COLOR, blk->addr, NO_COLOR);
+
+		t_block *tmp = blk->next;
+		
+		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+			return (NULL);
+		*(blk->next) = (t_block){.next = tmp,
+								 .size = blk->size - alloc_size,
+								 .freed = TRUE,
+								 .addr = blk->addr + alloc_size};
+		blk->size = alloc_size;
+		return (blk->addr);
+	}
+
+}
+
 /*
 **  If there's enough memory (@alloc_size) in this @zone
 **  check if it can be saved in an existing or a new block.
@@ -91,8 +128,8 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 
 	////printf(" CHECK_FOR_BLOCKS REMAINING : %zu | SIZE : %zu | zone memory : %x\n", zone->remaining, alloc_size, zone->memory);
 
-	//if (zone->remaining >= alloc_size)
-	//{
+	if (zone->remaining >= alloc_size || zone->freed_blks_nb > 0)
+	{
 		if ((blk = zone->blocks) == NULL)
 		{
 			printf("ERROR in check_for_blocks\n");
@@ -100,45 +137,15 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 		}
 		while (blk->next != NULL)
 		{
-			if (blk->freed == TRUE
-				&& blk->size >= alloc_size)
-			{
-
-				blk->freed = FALSE;
-				if (blk->size == alloc_size)
-				{
-					if (DEBUG)
-						printf("%sUSE OLD BLOCK MEMORY AT ADDR : %x%s\n",
-							DEBUG_COLOR,
-							blk->addr,
-							NO_COLOR);
-						printf("BLK SIZE : %zu | ALLOC SIZE : %zu\n", blk->size, alloc_size);
-					return (blk->addr);
-				}
-				else
-				{
-					if (DEBUG)
-						printf("%sDIVIDE AND UES OLD BLOCK AT ADDR : %x%s\n", DEBUG_COLOR, blk->addr, NO_COLOR);
-
-					t_block *tmp = blk->next;
-					
-					if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-							MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-						return (NULL);
-					*(blk->next) = (t_block){.next = tmp,
-											 .size = blk->size - alloc_size,
-											 .freed = TRUE,
-											 .addr = blk->addr + alloc_size};
-					blk->size = alloc_size;
-					return (blk->addr);
-				}
-			}
+			if (zone->freed_blks_nb > 0
+					&& blk->freed == TRUE
+					&& blk->size >= alloc_size)
+				return (use_freed_block(zone, blk, alloc_size));
 			blk = blk->next;
 		}
 		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
 				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 			return (NULL);
-		//printf("NEXT %x\n", blk->next);
 		*(blk->next) = (t_block){.next = NULL,
 								 .size = alloc_size,
 								 .freed = FALSE,
@@ -146,7 +153,7 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 
 		zone->remaining -= alloc_size;
 		return (blk->next->addr);
-	//}
+	}
 	return (NULL);
 }
 
@@ -159,6 +166,7 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 		return (-1);
 
 	*zone = (t_zone){.remaining = max_size - alloc_size,
+					 .freed_blks_nb = 0,
 					 .next = NULL};
 
 	if ((zone->memory = mmap(NULL, max_size * getpagesize(), PROT_READ | PROT_WRITE,
@@ -358,6 +366,8 @@ int main()
 
 	free(str[0]);
 	free(str[2]);
+	printf("--------------------\n");
+	show_alloc_mem();
 
 	return (0);
 }

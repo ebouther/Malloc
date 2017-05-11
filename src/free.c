@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/10 23:15:56 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/11 17:04:50 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,38 +32,30 @@ int check_if_unmapable(t_block **blocks)
 **  Returns the size of the block freed
 */
 
-int	parse_blocks(void *ptr, t_block **blocks)
+static size_t	parse_blocks(void *ptr, t_zone *zone)
 {
 	t_block	*block;
 	t_block	*tmp;
 
-	block = *blocks;
+	block = zone->blocks;
 	tmp = NULL;
-	//if (block && block->addr == ptr)
-	//{
-	//	printf("YUP 1 \n");
-	//	//if (munmap(block->addr, block->size) == -1)
-	//	//	return (-1);
-	//	block->freed = TRUE;
-	//	tmp = block->next;
-	//	//if (munmap(block, sizeof(t_block)) == -1)
-	//	//	return (-1);
-	//	*blocks = tmp;
-	//	return (1);
-	//}
+	
 	while (block)
 	{
-		//printf("ADDR : %x\n", block);
-		//printf("PTR : %x\n", ptr);
 		if (block->addr == ptr)
 		{
 			//if (munmap(block->addr, block->size) == -1)
 			//	return (1);
+			if (INFO && block->freed == TRUE)
+				printf("%sPointer (%#X) was already freed%s\n", INFO_COLOR, ptr, NO_COLOR);
+
+
 			block->freed = TRUE;
+			zone->freed_blks_nb += 1;
 			//tmp->next = block->next;
 			//if (munmap(block, sizeof(t_block)) == -1)
 			//	return (-1);
-			return ((int)block->size);
+			return (block->size);
 		}
 		tmp = block;
 		block = block->next;
@@ -85,7 +77,7 @@ int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 		if (((unsigned int)zone->memory <= (unsigned int)ptr)
 			&& ((unsigned int)ptr < (unsigned int)zone->memory + zone_size))
 		{
-			if ((ret = parse_blocks(ptr, &zone->blocks)) == -1)
+			if ((ret = parse_blocks(ptr, zone)) == -1)
 				return (-1);
 			else if (ret > 0)
 			{
