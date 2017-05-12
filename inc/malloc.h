@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 02:45:53 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 06:13:39 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 # include <sys/resource.h>
 # include <unistd.h>
 
-# define DEBUG 0
-# define INFO 0
+# define DEBUG 1
+# define INFO 1
 
 # define NO_COLOR "\033[0m"
 # define DEBUG_COLOR "\033[32m"
@@ -36,6 +36,8 @@ void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem();
+
+void *new_list(size_t size);
 
 typedef char t_bool;
 

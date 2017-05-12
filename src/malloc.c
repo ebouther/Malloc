@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 03:27:49 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 06:35:33 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -431,15 +431,20 @@ void	*malloc(size_t size)
 
 int      main()
 {
-   int   i;
-   char  *addr;
+   char  *addr[4];
 
-   i = 0;
-   while (i < 1024)
-   {
-	   addr = (char*)malloc(1024);
-	   addr[0] = 42;
-      i++;
-   }
+   addr[0] = (char*)malloc(124);
+   addr[0][0] = 42;
+
+   addr[1] = (char*)malloc(15);
+   addr[1][0] = 42;
+   free(addr[1]);
+
+   addr[2] = (char*)malloc(124);
+   addr[2][0] = 42;
+   show_alloc_mem();
+   realloc(addr[2], 140);
+   printf("---------------\n");
+   show_alloc_mem();
    return (0);
 }

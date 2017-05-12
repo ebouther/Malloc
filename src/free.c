@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 01:26:12 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 05:25:44 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,25 +32,14 @@ int check_if_unmapable(t_block **blocks)
 **  Returns the size of the block freed
 */
 
-int	parse_blocks(void *ptr, t_block **blocks)
+static int	parse_blocks(void *ptr, t_block **blocks)
 {
 	t_block	*block;
 	t_block	*tmp;
 
 	block = *blocks;
 	tmp = NULL;
-	//if (block && block->addr == ptr)
-	//{
-	//	printf("YUP 1 \n");
-	//	//if (munmap(block->addr, block->size) == -1)
-	//	//	return (-1);
-	//	block->freed = TRUE;
-	//	tmp = block->next;
-	//	//if (munmap(block, sizeof(t_block)) == -1)
-	//	//	return (-1);
-	//	*blocks = tmp;
-	//	return (1);
-	//}
+
 	while (block)
 	{
 		//printf("ADDR : %x\n", block);
@@ -76,7 +65,7 @@ int	parse_blocks(void *ptr, t_block **blocks)
 ** Unmap zone its blocks were all freed.
 */
 
-int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
+static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 {
 	int ret;
 
