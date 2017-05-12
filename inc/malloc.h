@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/11 17:28:22 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 02:45:53 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@
 # include <sys/resource.h>
 # include <unistd.h>
 
-# define DEBUG 1
-# define INFO 1
+# define DEBUG 0
+# define INFO 0
 
 # define NO_COLOR "\033[0m"
 # define DEBUG_COLOR "\033[32m"
@@ -63,11 +63,19 @@ typedef struct		s_zone
 	struct s_zone	*next;
 }					t_zone;
 
+typedef struct 		s_lst_mem
+{
+	void			*ptr;
+	size_t			len;
+	size_t			offset;
+}					t_lst_mem;
+
 typedef struct		s_malloc_zones
 {
 	t_zone			*tiny;
 	t_zone			*small;
 	t_block			*large;
+	t_lst_mem		lst_mem;
 }					t_malloc_zones;
 
 

@@ -6,13 +6,19 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/11 17:09:27 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 03:27:49 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 
-t_malloc_zones g_zones = (t_malloc_zones){NULL, NULL, NULL};
+t_malloc_zones g_zones = (t_malloc_zones)
+	{
+	 NULL,
+	 NULL,
+	 NULL,
+	 {NULL, 0, 0}
+	};
 
 static void parse_blocks(t_block **blocks)
 {
@@ -64,6 +70,29 @@ void	show_alloc_mem() {
 //---------------------------------------------------------------------------------------------
 //---------------------------------------------------------------------------------------------
 
+void *new_list(size_t size)
+{
+	//printf("OFFSET + SIZE = %zu | LEN = %zu\n", g_zones.lst_mem.offset + size,
+	//	g_zones.lst_mem.len);
+	if (g_zones.lst_mem.offset + size >= g_zones.lst_mem.len)
+	{
+		//printf("NEW LST_MEM (SIZE : %zu)\n", size);
+		g_zones.lst_mem.len = getpagesize();
+		g_zones.lst_mem.offset = size;
+		if ((g_zones.lst_mem.ptr = mmap(NULL, g_zones.lst_mem.len, PROT_READ | PROT_WRITE,
+				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+			return (NULL);
+		return (g_zones.lst_mem.ptr);
+	}
+	else
+	{
+		//printf("FILL CURR LST_MEM (SIZE : %zu)\n", size);
+		g_zones.lst_mem.offset += size;
+		return (g_zones.lst_mem.ptr + g_zones.lst_mem.offset);
+	}
+}
+
+
 /*
 **  Return the correct zone type (enum e_zones) for the allocation @size.
 */
@@ -80,7 +109,6 @@ static enum e_zones	zone_size(size_t size)
 		return ((enum e_zones)(-1));
 }
 
-
 static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
 {
 	blk->freed = FALSE;
@@ -91,7 +119,7 @@ static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
 		{
 			printf("%sUSE OLD BLOCK MEMORY AT ADDR : %x\nFreed blks left in zone : %zu%s\n",
 				DEBUG_COLOR,
-				blk->addr,
+				(unsigned int)blk->addr,
 				zone->freed_blks_nb,
 				NO_COLOR);
 		}
@@ -100,13 +128,14 @@ static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
 	else
 	{
 		if (DEBUG)
-			printf("%sDIVIDE AND USE OLD BLOCK AT ADDR : %x%s\n", DEBUG_COLOR, blk->addr, NO_COLOR);
+			printf("%sDIVIDE AND USE OLD BLOCK AT ADDR : %x%s\n", DEBUG_COLOR, (unsigned int)blk->addr, NO_COLOR);
 
 		t_block *tmp = blk->next;
 		
-		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-			return (NULL);
+		//if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+		//		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+		//	return (NULL);
+		blk->next = new_list(sizeof(t_block));
 		*(blk->next) = (t_block){.next = tmp,
 								 .size = blk->size - alloc_size,
 								 .freed = TRUE,
@@ -143,9 +172,10 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 				return (use_freed_block(zone, blk, alloc_size));
 			blk = blk->next;
 		}
-		if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-			return (NULL);
+		//if ((blk->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+		//		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+		//	return (NULL);
+		blk->next = new_list(sizeof(t_block));
 		*(blk->next) = (t_block){.next = NULL,
 								 .size = alloc_size,
 								 .freed = FALSE,
@@ -161,9 +191,10 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 {
 	t_zone	*zone;
 
-	if ((zone = mmap(NULL, sizeof(t_zone), PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-		return (-1);
+	//if ((zone = mmap(NULL, sizeof(t_zone), PROT_READ | PROT_WRITE,
+	//		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+	//	return (-1);
+	zone = new_list(sizeof(t_zone));
 
 	*zone = (t_zone){.remaining = max_size - alloc_size,
 					 .freed_blks_nb = 0,
@@ -172,9 +203,10 @@ static int	new_zone(t_zone **z, size_t max_size, size_t alloc_size)
 	if ((zone->memory = mmap(NULL, max_size * getpagesize(), PROT_READ | PROT_WRITE,
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 		return (-1);
-	if ((zone->blocks = (t_block *)mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) 
-		return (-1);
+	//if ((zone->blocks = (t_block *)mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+	//		MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED) 
+	//	return (-1);
+	zone->blocks = new_list(sizeof(t_zone));
 	*(zone->blocks) = (t_block){.next = NULL,
 								 .size = alloc_size,
 								 .freed = FALSE,
@@ -224,18 +256,20 @@ static void	*alloc_large(t_block **large, size_t size)
 	tmp = *large;
 	if (*large == NULL)	
 	{
-		if ((*large = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-			return (NULL);
+		//if ((*large = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+		//	MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+		//	return (NULL);
+		*large = new_list(sizeof(t_block));
 		tmp = *large;
 	}
 	else
 	{
 		while (tmp->next != NULL)
 			tmp = tmp->next;
-		if ((tmp->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
-			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
-			return (NULL);
+		//if ((tmp->next = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
+		//	MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+		//	return (NULL);
+		tmp->next = new_list(sizeof(t_block));
 		tmp = tmp->next;
 	}
 	if ((tmp->addr = mmap(NULL, size, PROT_READ | PROT_WRITE,
@@ -271,7 +305,14 @@ static void	*get_address(enum e_zones zone, size_t size)
 
 void	*malloc(size_t size)
 {
-	//printf("==== SIZE : %u ====\n", size);
+	if (g_zones.lst_mem.ptr == NULL)
+	{
+		g_zones.lst_mem.len = getpagesize();
+		g_zones.lst_mem.offset = 0;
+		if ((g_zones.lst_mem.ptr = mmap(NULL, g_zones.lst_mem.len, PROT_READ | PROT_WRITE,
+				MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
+			return (NULL);
+	}
 	return (get_address(zone_size(size), size));
 }
 
@@ -324,53 +365,53 @@ void	*malloc(size_t size)
 //}
 
 // USE OLD BLOCK MAIN
-int main()
-{
-	char *str[4] = {NULL, NULL, NULL, NULL};
-
-	if ((str[0] = malloc(10)) == NULL)
-		printf("Error malloc\n");
-	if ((str[1] = malloc(10)) == NULL)
-		printf("Error malloc\n");
-	if ((str[2] = malloc(10)) == NULL)
-		printf("Error malloc\n");
-	
-	show_alloc_mem();
-
-	printf("--------------------\n");
-	free(str[1]);
-	show_alloc_mem();
-
-	printf("--------------------\n");
-	if ((str[1] = malloc(10)) == NULL)
-		printf("Error malloc\n");
-	show_alloc_mem();
-
-	printf("--------------------\n");
-	free(str[1]);
-	show_alloc_mem();
-
-	printf("--------------------\n");
-	if ((str[1] = malloc(4)) == NULL)
-		printf("Error malloc\n");
-	show_alloc_mem();
-
-	printf("--------------------\n");
-	if ((str[1] = malloc(4)) == NULL)
-		printf("Error malloc\n");
-	show_alloc_mem();
-	printf("--------------------\n");
-	if ((str[1] = malloc(4)) == NULL)
-		printf("Error malloc\n");
-	show_alloc_mem();
-
-	free(str[0]);
-	free(str[2]);
-	printf("--------------------\n");
-	show_alloc_mem();
-
-	return (0);
-}
+//int main()
+//{
+//	char *str[4] = {NULL, NULL, NULL, NULL};
+//
+//	if ((str[0] = malloc(10)) == NULL)
+//		printf("Error malloc\n");
+//	if ((str[1] = malloc(10)) == NULL)
+//		printf("Error malloc\n");
+//	if ((str[2] = malloc(10)) == NULL)
+//		printf("Error malloc\n");
+//	
+//	show_alloc_mem();
+//
+//	printf("--------------------\n");
+//	free(str[1]);
+//	show_alloc_mem();
+//
+//	printf("--------------------\n");
+//	if ((str[1] = malloc(10)) == NULL)
+//		printf("Error malloc\n");
+//	show_alloc_mem();
+//
+//	printf("--------------------\n");
+//	free(str[1]);
+//	show_alloc_mem();
+//
+//	printf("--------------------\n");
+//	if ((str[1] = malloc(4)) == NULL)
+//		printf("Error malloc\n");
+//	show_alloc_mem();
+//
+//	printf("--------------------\n");
+//	if ((str[1] = malloc(4)) == NULL)
+//		printf("Error malloc\n");
+//	show_alloc_mem();
+//	printf("--------------------\n");
+//	if ((str[1] = malloc(4)) == NULL)
+//		printf("Error malloc\n");
+//	show_alloc_mem();
+//
+//	free(str[0]);
+//	free(str[2]);
+//	printf("--------------------\n");
+//	show_alloc_mem();
+//
+//	return (0);
+//}
 
 //int main ()
 //{
@@ -387,3 +428,18 @@ int main()
 //
 //	return (0);
 //}
+
+int      main()
+{
+   int   i;
+   char  *addr;
+
+   i = 0;
+   while (i < 1024)
+   {
+	   addr = (char*)malloc(1024);
+	   addr[0] = 42;
+      i++;
+   }
+   return (0);
+}
