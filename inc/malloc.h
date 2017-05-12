@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 06:13:39 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 07:05:03 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MALLOC_H
 
 # include <stdlib.h>
+# include <string.h>
 # include <sys/mman.h>
 # include <sys/resource.h>
 # include <unistd.h>

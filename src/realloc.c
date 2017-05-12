@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/11 00:46:09 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 06:36:10 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 07:59:53 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,14 +60,15 @@ static void	*parse_blocks(void *ptr, t_block **blocks, size_t new_size, size_t z
 {
 	t_block	*block;
 	t_block	*tmp;
+	void	*new_ptr;
 
 	block = *blocks;
 	tmp = NULL;
 
 	while (block)
 	{
-		//printf("ADDR : %x\n", block);
-		//printf("PTR : %x\n", ptr);
+    	printf("ADDR : %x\n", (unsigned int)block);
+		printf("PTR : %x\n", (unsigned int)ptr);
 		if (block->addr == ptr)
 		{
 			if (DEBUG)
@@ -80,13 +81,17 @@ static void	*parse_blocks(void *ptr, t_block **blocks, size_t new_size, size_t z
 				if (DEBUG)
 					printf("%sREALLOC: CANNOT RESIZE, ALLOC NEW.%s\n",
 						DEBUG_COLOR, NO_COLOR);
+				new_ptr = malloc(new_size);
+				memcpy(new_ptr, ptr, block->size);
 				free(ptr);
-				return (malloc(new_size));
+				printf("NEW PTR : %x\n", (unsigned int)new_ptr);
+				return (new_ptr);
 			}
 		}
 		tmp = block;
 		block = block->next;
 	}
+	printf("PARSE_BLK RETURN NULL\n");
 	return (NULL);
 }
 
@@ -101,14 +106,6 @@ static void	*parse_zone(void *ptr, t_zone *zone, size_t zone_size, size_t new_si
 			&& ((unsigned int)ptr < (unsigned int)zone->memory + zone_size))
 		{
 
-			if (zone->remaining == 0 && zone->freed_blks_nb == 0)
-			{
-				if (DEBUG)
-					printf("%sREALLOC: NO SPACE LEFT IN ZONE, ALLOC NEW.%s\n",
-						DEBUG_COLOR, NO_COLOR);
-				free(ptr);
-				return (malloc(new_size));
-			}
 			if ((ret = parse_blocks(ptr, &zone->blocks, new_size, zone->remaining)) != NULL)
 				return (ret);
 		}
@@ -123,18 +120,19 @@ void	*realloc(void *ptr, size_t size)
 	void	*ret;
 
 	page_size = getpagesize();
-	//printf("PARSE TINY\n");
+	printf("PARSE TINY\n");
 	if ((ret = parse_zone(ptr, g_zones.tiny,
 			(size_t)(MAX_TINY * MAX_PER_ZONE * page_size), size)) != NULL)
 		return (ret);
 
-	//printf("PARSE SMALL\n");
+	printf("PARSE SMALL\n");
 	if ((ret = parse_zone(ptr, g_zones.small,
 			(size_t)(MAX_SMALL * MAX_PER_ZONE * page_size), size)) != NULL)
 		return (ret);
 
-	//printf("PARSE LARGE\n");
-	//if (parse_blocks(ptr, &g_zones.large) == )
-	//	return ;
+	printf("PARSE LARGE (ADDR : %x)\n", (unsigned int)g_zones.large);
+	if ((ret = parse_blocks(ptr, &g_zones.large, size, 0)) != NULL)
+		return (ret);
+	printf("ERROR\n");
 	return (NULL);
 }

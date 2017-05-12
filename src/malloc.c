@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 06:35:33 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 14:41:03 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,6 +254,7 @@ static void	*alloc_large(t_block **large, size_t size)
 	t_block	*tmp;
 
 	tmp = *large;
+	printf("ALLOC LARGE\n");
 	if (*large == NULL)	
 	{
 		//if ((*large = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
@@ -276,6 +277,7 @@ static void	*alloc_large(t_block **large, size_t size)
 			MAP_ANON | MAP_PRIVATE, -1, 0)) == MAP_FAILED)
 			return (NULL);
 	tmp->size = size;
+	tmp->freed = FALSE;
 	tmp->next = NULL;
 	return (tmp->addr);
 }
@@ -305,6 +307,7 @@ static void	*get_address(enum e_zones zone, size_t size)
 
 void	*malloc(size_t size)
 {
+			printf("%s MALLOC %s\n", DEBUG_COLOR, NO_COLOR);
 	if (g_zones.lst_mem.ptr == NULL)
 	{
 		g_zones.lst_mem.len = getpagesize();
@@ -429,22 +432,74 @@ void	*malloc(size_t size)
 //	return (0);
 //}
 
-int      main()
+//int      main()
+//{
+//   char  *addr[4];
+//
+//   addr[0] = (char*)malloc(1024);
+//   addr[0][0] = 42;
+//
+//   addr[1] = (char*)malloc(1024);
+//   addr[1][0] = 42;
+//   free(addr[1]);
+//
+//   addr[2] = (char*)malloc(1024);
+//   addr[2][0] = 42;
+//   show_alloc_mem();
+//   realloc(addr[0], 2048);
+//   printf("---------------\n");
+//   show_alloc_mem();
+//   return (0);
+//}
+
+
+//#include <strings.h>
+//#include <stdlib.h>
+//#include <unistd.h>
+//
+//#define M (1024 * 1024)
+//
+//void print(char *s)
+//{
+//   write(1, s, strlen(s));
+//}
+//
+//int     main()
+//{
+//   char *addr1;
+//   char *addr3;
+//
+//   addr1 = (char*)malloc(16*M);
+//   strcpy(addr1, "Bonjours\n");
+//   print(addr1);
+//   addr3 = (char*)realloc(addr1, 128*M);
+//   addr3[127*M] = 42;
+//   print(addr3);
+//   return (0);
+//}
+#define M (1024 * 1024)
+
+//void print(char *s)
+//{
+//   write(1, s, strlen(s));
+//}
+
+int     main()
 {
-   char  *addr[4];
+   char *addr1;
+   //char *addr3;
 
-   addr[0] = (char*)malloc(124);
-   addr[0][0] = 42;
-
-   addr[1] = (char*)malloc(15);
-   addr[1][0] = 42;
-   free(addr[1]);
-
-   addr[2] = (char*)malloc(124);
-   addr[2][0] = 42;
-   show_alloc_mem();
-   realloc(addr[2], 140);
-   printf("---------------\n");
-   show_alloc_mem();
+   write(1, "BEGIN", 5);
+   write(1, "BEGIN", 5);
+   write(1, "BEGIN", 5);
+   write(1, "BEGIN", 5);
+   write(1, "BEGIN", 5);
+   write(1, "BEGIN", 5);
+   addr1 = (char*)malloc(16*M);
+   strcpy(addr1, "Bonjours\n");
+   //print(addr1);
+   //addr3 = (char*)realloc(addr1, 128*M);
+   //addr3[127*M] = 42;
+   //print(addr3);
    return (0);
 }

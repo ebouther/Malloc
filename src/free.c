@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 05:25:44 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 08:04:58 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,6 +78,7 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 				return (-1);
 			else if (ret > 0)
 			{
+				printf("O.O.O.O.O.O.\n");
 				zone->freed_blks_nb += 1;
 				//if (zone->remaining <= 0)
 				//	check_if_unmapable(&zone->blocks);
@@ -95,19 +96,19 @@ void	free(void *ptr)
 	int	ret;
 
 	page_size = getpagesize();
-	//printf("PARSE TINY\n");
+	printf("FREE PARSE TINY\n");
 	if ((ret = parse_zone(ptr, g_zones.tiny,
 			(size_t)(MAX_TINY * MAX_PER_ZONE * page_size))) == -1
 		|| ret == 1)
 		return ;
 
-	//printf("PARSE SMALL\n");
+	printf("FREE PARSE SMALL\n");
 	if ((ret = parse_zone(ptr, g_zones.small,
 			(size_t)(MAX_SMALL * MAX_PER_ZONE * page_size))) == -1
 		|| ret == 1)
 		return ;
 
-	//printf("PARSE LARGE\n");
+	printf("FREE PARSE LARGE\n");
 	if (parse_blocks(ptr, &g_zones.large) == -1)
 		return ;
 }
