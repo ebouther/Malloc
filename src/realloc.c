@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/11 00:46:09 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 07:59:53 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 16:29:54 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,6 +119,9 @@ void	*realloc(void *ptr, size_t size)
 	int		page_size;
 	void	*ret;
 
+	if (ptr == NULL)
+		return (malloc(size));
+	printf("REALLOC ptr : %x\n", (unsigned int)ptr);
 	page_size = getpagesize();
 	printf("PARSE TINY\n");
 	if ((ret = parse_zone(ptr, g_zones.tiny,

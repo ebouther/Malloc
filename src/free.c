@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 08:04:58 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 16:15:09 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,8 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 
 void	free(void *ptr)
 {
+
+	write(STDOUT_FILENO, "\n[Free]\n", 8);
 	int	page_size;
 	int	ret;
 

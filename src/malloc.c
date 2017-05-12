@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 14:41:03 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 16:26:52 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -254,7 +254,7 @@ static void	*alloc_large(t_block **large, size_t size)
 	t_block	*tmp;
 
 	tmp = *large;
-	printf("ALLOC LARGE\n");
+	write(STDOUT_FILENO, "\n[ALLOC LARGE]\n", 15);
 	if (*large == NULL)	
 	{
 		//if ((*large = mmap(NULL, sizeof(t_block), PROT_READ | PROT_WRITE,
@@ -307,7 +307,8 @@ static void	*get_address(enum e_zones zone, size_t size)
 
 void	*malloc(size_t size)
 {
-			printf("%s MALLOC %s\n", DEBUG_COLOR, NO_COLOR);
+	write(STDOUT_FILENO, "\n[Malloc]\n", 9);
+			//printf("%s MALLOC %s\n", DEBUG_COLOR, NO_COLOR);
 	if (g_zones.lst_mem.ptr == NULL)
 	{
 		g_zones.lst_mem.len = getpagesize();
