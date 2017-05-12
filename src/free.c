@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 16:15:09 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 16:33:09 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,6 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 				return (-1);
 			else if (ret > 0)
 			{
-				printf("O.O.O.O.O.O.\n");
 				zone->freed_blks_nb += 1;
 				//if (zone->remaining <= 0)
 				//	check_if_unmapable(&zone->blocks);
@@ -93,24 +92,20 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 void	free(void *ptr)
 {
 
-	write(STDOUT_FILENO, "\n[Free]\n", 8);
 	int	page_size;
 	int	ret;
 
 	page_size = getpagesize();
-	printf("FREE PARSE TINY\n");
 	if ((ret = parse_zone(ptr, g_zones.tiny,
 			(size_t)(MAX_TINY * MAX_PER_ZONE * page_size))) == -1
 		|| ret == 1)
 		return ;
 
-	printf("FREE PARSE SMALL\n");
 	if ((ret = parse_zone(ptr, g_zones.small,
 			(size_t)(MAX_SMALL * MAX_PER_ZONE * page_size))) == -1
 		|| ret == 1)
 		return ;
 
-	printf("FREE PARSE LARGE\n");
 	if (parse_blocks(ptr, &g_zones.large) == -1)
 		return ;
 }

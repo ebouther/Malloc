@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 07:05:03 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/05/12 16:31:28 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,8 @@
 # include <sys/resource.h>
 # include <unistd.h>
 
-# define DEBUG 1
-# define INFO 1
+# define DEBUG 0
+# define INFO 0
 
 # define NO_COLOR "\033[0m"
 # define DEBUG_COLOR "\033[32m"
