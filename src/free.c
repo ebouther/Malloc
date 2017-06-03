@@ -6,26 +6,27 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/05/12 16:33:09 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/03 20:25:47 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 
-
-int check_if_unmapable(t_block **blocks)
-{
-	t_block	*block;
-
-	block = *blocks;
-	while (block)
-	{
-		if (block->freed == FALSE)
-			return (0);
-	}
-	printf("UNMAP ZONE");
-	return (1);
-}
+/*
+**  static int	check_if_unmapable(t_block **blocks)
+**  {
+**  	t_block	*block;
+**  
+**  	block = *blocks;
+**  	while (block)
+**  	{
+**  		if (block->freed == FALSE)
+**  			return (0);
+**  	}
+**  	printf("UNMAP ZONE");
+**  	return (1);
+**  }
+*/
 
 /*
 **	Check if zone blocks contain the pointer.
@@ -39,19 +40,11 @@ static int	parse_blocks(void *ptr, t_block **blocks)
 
 	block = *blocks;
 	tmp = NULL;
-
 	while (block)
 	{
-		//printf("ADDR : %x\n", block);
-		//printf("PTR : %x\n", ptr);
 		if (block->addr == ptr)
 		{
-			//if (munmap(block->addr, block->size) == -1)
-			//	return (1);
 			block->freed = TRUE;
-			//tmp->next = block->next;
-			//if (munmap(block, sizeof(t_block)) == -1)
-			//	return (-1);
 			return ((int)block->size);
 		}
 		tmp = block;
@@ -72,15 +65,13 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 	while (zone)
 	{
 		if (((unsigned int)zone->memory <= (unsigned int)ptr)
-			&& ((unsigned int)ptr < (unsigned int)zone->memory + zone_size))
+				&& ((unsigned int)ptr < (unsigned int)zone->memory + zone_size))
 		{
 			if ((ret = parse_blocks(ptr, &zone->blocks)) == -1)
 				return (-1);
 			else if (ret > 0)
 			{
 				zone->freed_blks_nb += 1;
-				//if (zone->remaining <= 0)
-				//	check_if_unmapable(&zone->blocks);
 				return (1);
 			}
 		}
@@ -89,23 +80,20 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 	return (0);
 }
 
-void	free(void *ptr)
+void		free(void *ptr)
 {
-
 	int	page_size;
 	int	ret;
 
 	page_size = getpagesize();
 	if ((ret = parse_zone(ptr, g_zones.tiny,
-			(size_t)(MAX_TINY * MAX_PER_ZONE * page_size))) == -1
-		|| ret == 1)
+					(size_t)(MAX_TINY * MAX_PER_ZONE * page_size))) == -1
+			|| ret == 1)
 		return ;
-
 	if ((ret = parse_zone(ptr, g_zones.small,
-			(size_t)(MAX_SMALL * MAX_PER_ZONE * page_size))) == -1
-		|| ret == 1)
+					(size_t)(MAX_SMALL * MAX_PER_ZONE * page_size))) == -1
+			|| ret == 1)
 		return ;
-
 	if (parse_blocks(ptr, &g_zones.large) == -1)
 		return ;
 }

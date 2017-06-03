@@ -6,7 +6,7 @@
 #    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
-#    Updated: 2017/05/11 00:48:04 by ebouther         ###   ########.fr        #
+#    Updated: 2017/06/03 22:43:50 by ebouther         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CC = gcc
 CFLAGS =  -Wall -Wextra -Werror
 DYLDFLAGS = -shared -fPIC
 LFLAGS = -L$(LIBFT_PATH) -lft
-IFLAGS = -I $(INC_DIR)
+IFLAGS = -I $(INC_DIR) -I $(LIBFT_PATH)/includes/
 
 LIBFT_PATH = ./libft
 LIBFT_BIN = libft.a
