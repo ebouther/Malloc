@@ -6,7 +6,7 @@
 #    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
-#    Updated: 2017/06/03 22:43:50 by ebouther         ###   ########.fr        #
+#    Updated: 2017/06/05 18:13:50 by ebouther         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,7 +48,7 @@ $(OBJ_DIR)%.o: $(SRC_DIR)%.c $(INC)
 	$(CC) $(CFLAGS) $(IFLAGS) -o $@ -c $<
 
 $(NAME): $(OBJ)
-	$(CC) $(DYLDFLAGS) $^ -o $(NAME)
+	$(CC) $(DYLDFLAGS) $(LFLAGS) $^ -o $(NAME)
 	rm -f libft_malloc.so
 	ln -s libft_malloc_$(HOSTTYPE).so libft_malloc.so 
 

@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/03 20:25:23 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/05 18:00:23 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@
 # include <sys/resource.h>
 # include <unistd.h>
 
-# include "libft.h"
+# include "ft_printf.h"
 
 # define DEBUG 0
 # define INFO 0
