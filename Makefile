@@ -6,7 +6,7 @@
 #    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
-#    Updated: 2017/06/09 18:05:34 by ebouther         ###   ########.fr        #
+#    Updated: 2017/06/09 19:18:25 by ebouther         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,7 +25,7 @@ INC_DIR = ./inc/
 INC_FILES = malloc.h
 
 SRC_DIR = ./src/
-SRC_FILES = malloc.c free.c realloc.c ft_ll_itoa_base.c utils.c
+SRC_FILES = malloc.c free.c realloc.c disp.c ft_ll_itoa_base.c utils.c
 
 OBJ_DIR = ./obj/
 OBJ_FILES = $(SRC_FILES:.c=.o)

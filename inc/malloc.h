@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 18:08:54 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/09 19:26:47 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,12 @@ void					show_alloc_mem();
 void					*new_list(size_t size);
 char					*ft_lltoa_base(long long n, char *base);
 size_t					ft_strlen(const char *str);
+void 					ft_putstr(char *str);
+
+
+void 					disp_large_zone(void *blk_addr);
+void 					disp_blk(void *blk_addr, size_t blk_size, char freed);
+void					disp_use_old_blk(void *blk_addr, size_t freed_blks_nb, char split);
 
 typedef char			t_bool;
 

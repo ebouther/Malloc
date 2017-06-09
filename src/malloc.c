@@ -6,21 +6,13 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 03:58:52 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/09 19:26:39 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
 
 t_malloc_zones g_zones = (t_malloc_zones){NULL, NULL, NULL, {NULL, 0, 0}};
-
-static void ft_putstr(char *str)
-{
-	int i = 0;
-	
-	while (str && str[i])
-		write(1, str + i++, 1);
-}
 
 static unsigned int	parse_blocks(t_block **blocks, char is_large)
 {
@@ -35,33 +27,14 @@ static unsigned int	parse_blocks(t_block **blocks, char is_large)
 		{
 			if (is_large)
 			{
-				ft_putstr("LARGE : 0x");
-				ft_putstr(ft_lltoa_base((long long)block->addr, HEX));
-				ft_putstr("\n");
+				disp_large_zone(block->addr);
 				is_large = 0;
 			}
-			ft_putstr("0x");
-			ft_putstr(ft_lltoa_base((long long)block->addr, HEX));
-			ft_putstr(" - 0x");
-			ft_putstr(ft_lltoa_base((long long)block->addr + block->size, HEX));
-			ft_putstr(" : ");
-			ft_putstr(ft_lltoa_base(block->size, DEC));
-			ft_putstr(" octets\n");
+			disp_blk(block->addr, block->size, 0);
 			total += block->size;
 		}
-			//ft_printf("%x - %x : %zu octets\n",
-			//		(unsigned int)block->addr,
-			//		(unsigned int)(block->addr + block->size),
-			//		(unsigned long)block->size);
-		//else if (DEBUG)
-		//{
-		//	ft_printf("%s%x - %x : %zu octets [FREED]%s\n",
-		//			DEBUG_COLOR,
-		//			(unsigned int)block->addr,
-		//			(unsigned int)(block->addr + block->size),
-		//			(unsigned long)block->size,
-		//			NO_COLOR);
-		//}
+		else if (DEBUG)
+			disp_blk(block->addr, block->size, 1);
 		block = block->next;
 	}
 	return (total);
@@ -74,7 +47,6 @@ static unsigned int	parse_zone(const char *zone_type, t_zone *zone)
 	total = 0;
 	while (zone)
 	{
-		//ft_printf("%s%x \n", zone_type, (unsigned int)zone->memory);
 		ft_putstr((char *)zone_type);
 		ft_putstr("0x");
 		ft_putstr(ft_lltoa_base((long long)zone->memory, HEX));
@@ -141,8 +113,8 @@ static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
 	if (blk->size == alloc_size)
 	{
 		zone->freed_blks_nb -= 1;
-		//if (DEBUG)
-		//{
+		if (DEBUG)
+			disp_use_old_blk(blk->addr, zone->freed_blks_nb, 0);
 		//	ft_putstr(DEBUG_COLOR);
 		//	ft_putstr("USE OLD BLOCK MEMORY AT ADDR : ");
 		//	ft_putstr("\nFreed blks left in zone :");
@@ -152,14 +124,12 @@ static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
 		//			(unsigned int)blk->addr,
 		//			zone->freed_blks_nb,
 		//			NO_COLOR);
-		//}
 		return (blk->addr);
 	}
 	else
 	{
-		//if (DEBUG)
-		//	ft_printf("%sDIVIDE AND USE OLD BLOCK AT ADDR : %x%s\n",
-		//			DEBUG_COLOR, (unsigned int)blk->addr, NO_COLOR);
+		if (DEBUG)
+			disp_use_old_blk(blk->addr, zone->freed_blks_nb, 1);
 		tmp = blk->next;
 		blk->next = new_list(sizeof(t_block));
 		*(blk->next) = (t_block){.next = tmp,
