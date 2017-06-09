@@ -6,11 +6,31 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/11 00:46:09 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/03 20:31:31 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/09 18:01:31 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
+
+static int	resize_blk(size_t size_available,
+						size_t new_size,
+						t_block *block,
+						t_block *tmp)
+{
+	block->size = new_size;
+	if (size_available > new_size)
+	{
+		tmp = tmp->next->next;
+		block->next = new_list(sizeof(t_block));
+		*(block->next) = (t_block){.next = tmp,
+								.size = size_available - new_size,
+								.freed = TRUE,
+								.addr = block->addr + new_size};
+	}
+	else
+		block->next = tmp->next->next;
+	return (1);
+}
 
 static int	try_resize(t_block *block, size_t new_size, size_t zone_remaining)
 {
@@ -26,21 +46,7 @@ static int	try_resize(t_block *block, size_t new_size, size_t zone_remaining)
 		else
 			return (0);
 		if (size_available >= new_size)
-		{
-			block->size = new_size;
-			if (size_available > new_size)
-			{
-				tmp = tmp->next->next;
-				block->next = new_list(sizeof(t_block));
-				*(block->next) = (t_block){.next = tmp,
-										.size = size_available - new_size,
-										.freed = TRUE,
-										.addr = block->addr + new_size};
-			}
-			else
-				block->next = tmp->next->next;
-			return (1);
-		}
+			return (resize_blk(size_available, new_size, block, tmp) || 1);
 		tmp = tmp->next;
 	}
 	if (zone_remaining + size_available >= new_size)

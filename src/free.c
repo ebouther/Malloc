@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/03 20:25:47 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/09 17:13:22 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 **  static int	check_if_unmapable(t_block **blocks)
 **  {
 **  	t_block	*block;
-**  
+**
 **  	block = *blocks;
 **  	while (block)
 **  	{

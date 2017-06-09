@@ -6,11 +6,18 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/02/02 14:56:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 03:29:37 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/09 18:08:27 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
+
+static char	*ft_toa_bis(int *limit, char *res)
+{
+	res[0] = '-';
+	*limit = 1;
+	return (res);
+}
 
 static int	ft_get_res_length(long long n, int base_length)
 {

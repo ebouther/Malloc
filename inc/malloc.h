@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 03:34:58 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/09 18:08:54 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,7 @@ void					show_alloc_mem();
 
 void					*new_list(size_t size);
 char					*ft_lltoa_base(long long n, char *base);
+size_t					ft_strlen(const char *str);
 
 typedef char			t_bool;
 
