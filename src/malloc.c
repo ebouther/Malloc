@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 19:26:39 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/10 18:20:27 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,15 +115,6 @@ static void	*use_freed_block(t_zone *zone, t_block *blk, size_t alloc_size)
 		zone->freed_blks_nb -= 1;
 		if (DEBUG)
 			disp_use_old_blk(blk->addr, zone->freed_blks_nb, 0);
-		//	ft_putstr(DEBUG_COLOR);
-		//	ft_putstr("USE OLD BLOCK MEMORY AT ADDR : ");
-		//	ft_putstr("\nFreed blks left in zone :");
-		//	ft_printf("%sUSE OLD BLOCK MEMORY AT ADDR : %x\n\
-		//			Freed blks left in zone : %zu%s\n",
-		//			DEBUG_COLOR,
-		//			(unsigned int)blk->addr,
-		//			zone->freed_blks_nb,
-		//			NO_COLOR);
 		return (blk->addr);
 	}
 	else
@@ -153,10 +144,7 @@ static void	*check_for_blocks(t_zone *zone, size_t alloc_size)
 	if (zone->remaining >= alloc_size || zone->freed_blks_nb > 0)
 	{
 		if ((blk = zone->blocks) == NULL)
-		{
-			ft_putstr("ERROR in check_for_blocks\n");
-			return (NULL);
-		}
+			return (ft_putstr("ERROR in check_for_blocks\n") ? NULL : NULL);
 		while (blk->next != NULL)
 		{
 			if (zone->freed_blks_nb > 0
