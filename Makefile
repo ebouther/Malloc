@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+         #
+#    By: ebouther <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2016/05/21 00:09:33 by ebouther          #+#    #+#              #
-#    Updated: 2017/06/12 12:16:14 by ebouther         ###   ########.fr        #
+#    Created: 2017/06/12 14:43:31 by ebouther          #+#    #+#              #
+#    Updated: 2017/06/12 14:47:21 by ebouther         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,6 +20,7 @@ CC = gcc
 CFLAGS =  -Wall -Wextra -Werror
 DYLDFLAGS = -shared -fPIC
 IFLAGS = -I $(INC_DIR)
+LFLAGS = -lpthread
 
 INC_DIR = ./inc/
 INC_FILES = malloc.h

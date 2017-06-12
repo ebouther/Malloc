@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:46:41 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/12 12:37:40 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/12 14:51:47 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,6 +116,10 @@ static void			*get_address(enum e_zones zone, size_t size)
 
 void				*malloc(size_t size)
 {
+	static pthread_mutex_t	mutex;
+
+	mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&mutex);
 	if (g_zones.lst_mem.ptr == NULL)
 	{
 		g_zones.lst_mem.len = getpagesize();
@@ -126,4 +130,5 @@ void				*malloc(size_t size)
 			return (NULL);
 	}
 	return (get_address(zone_size(size), size));
+	pthread_mutex_unlock(&mutex);
 }

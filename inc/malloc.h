@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/12 13:40:58 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/12 14:43:03 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 # include <sys/mman.h>
 # include <sys/resource.h>
 # include <unistd.h>
+# include <pthread.h>
 
 # define DEBUG 1
 # define INFO 1

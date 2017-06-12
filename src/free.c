@@ -5,28 +5,24 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2017/06/12 15:08:02 by ebouther          #+#    #+#             */
+/*   Updated: 2017/06/12 15:08:04 by ebouther         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   free.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 17:13:22 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/12 14:51:18 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "malloc.h"
-
-/*
-**  static int	check_if_unmapable(t_block **blocks)
-**  {
-**  	t_block	*block;
-**
-**  	block = *blocks;
-**  	while (block)
-**  	{
-**  		if (block->freed == FALSE)
-**  			return (0);
-**  	}
-**  	printf("UNMAP ZONE");
-**  	return (1);
-**  }
-*/
 
 /*
 **	Check if zone blocks contain the pointer.
@@ -82,9 +78,12 @@ static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
 
 void		free(void *ptr)
 {
-	int	page_size;
-	int	ret;
+	static pthread_mutex_t	mutex;
+	int						page_size;
+	int						ret;
 
+	mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&mutex);
 	page_size = getpagesize();
 	if ((ret = parse_zone(ptr, g_zones.tiny,
 					(size_t)(MAX_TINY * MAX_PER_ZONE * page_size))) == -1
@@ -96,4 +95,5 @@ void		free(void *ptr)
 		return ;
 	if (parse_blocks(ptr, &g_zones.large) == -1)
 		return ;
+	pthread_mutex_unlock(&mutex);
 }

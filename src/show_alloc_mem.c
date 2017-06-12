@@ -6,7 +6,7 @@
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/06/12 12:06:56 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/12 12:31:27 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/12 15:09:17 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,11 @@ static unsigned int	parse_zone(const char *zone_type, t_zone *zone)
 
 void				show_alloc_mem(void)
 {
-	unsigned int	total;
+	static pthread_mutex_t	mutex;
+	unsigned int			total;
 
+	mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&mutex);
 	total = 0;
 	total += parse_zone("TINY : ", g_zones.tiny);
 	total += parse_zone("SMALL : ", g_zones.small);
@@ -66,4 +69,5 @@ void				show_alloc_mem(void)
 	ft_putstr("Total : ");
 	ft_putstr(ft_lltoa_base(total, DEC));
 	ft_putstr(" octets\n");
+	pthread_mutex_unlock(&mutex);
 }

@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2017/05/11 00:46:09 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 18:01:31 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/12 15:07:22 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,9 +108,12 @@ static void	*parse_zone(void *ptr,
 
 void		*realloc(void *ptr, size_t size)
 {
-	int		page_size;
-	void	*ret;
+	static pthread_mutex_t	mutex;
+	int						page_size;
+	void					*ret;
 
+	mutex = (pthread_mutex_t)PTHREAD_MUTEX_INITIALIZER;
+	pthread_mutex_lock(&mutex);
 	if (ptr == NULL)
 		return (malloc(size));
 	page_size = getpagesize();
@@ -122,5 +125,6 @@ void		*realloc(void *ptr, size_t size)
 		return (ret);
 	if ((ret = parse_blocks(ptr, &g_zones.large, size, 0)) != NULL)
 		return (ret);
+	pthread_mutex_unlock(&mutex);
 	return (NULL);
 }
