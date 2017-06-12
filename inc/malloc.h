@@ -6,7 +6,7 @@
 /*   By: ebouther <ebouther@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/05/01 17:50:35 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/09 19:26:47 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/12 12:39:24 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,21 +38,6 @@
 
 # define TRUE 1
 # define FALSE 0
-
-void					free(void *ptr);
-void					*malloc(size_t size);
-void					*realloc(void *ptr, size_t size);
-void					show_alloc_mem();
-
-void					*new_list(size_t size);
-char					*ft_lltoa_base(long long n, char *base);
-size_t					ft_strlen(const char *str);
-void 					ft_putstr(char *str);
-
-
-void 					disp_large_zone(void *blk_addr);
-void 					disp_blk(void *blk_addr, size_t blk_size, char freed);
-void					disp_use_old_blk(void *blk_addr, size_t freed_blks_nb, char split);
 
 typedef char			t_bool;
 
@@ -99,5 +84,26 @@ typedef struct			s_malloc_zones
 }						t_malloc_zones;
 
 extern t_malloc_zones	g_zones;
+
+void					free(void *ptr);
+void					*malloc(size_t size);
+void					*realloc(void *ptr, size_t size);
+extern void				show_alloc_mem();
+
+extern void				*new_list(size_t size);
+void					*check_for_blocks(t_zone *zone, size_t alloc_size);
+int						new_zone(t_zone **z,
+								size_t max_size,
+								size_t alloc_size);
+
+char					*ft_lltoa_base(long long n, char *base);
+size_t					ft_strlen(const char *str);
+int						ft_putstr(char *str);
+
+void					disp_large_zone(void *blk_addr);
+void					disp_blk(void *blk_addr, size_t blk_size, char freed);
+void					disp_use_old_blk(void *blk_addr,
+										size_t freed_blks_nb,
+										char split);
 
 #endif
