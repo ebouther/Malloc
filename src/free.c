@@ -5,20 +5,8 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2017/06/12 15:08:02 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/12 15:08:04 by ebouther         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   free.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ebouther <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2016/08/20 18:10:42 by ebouther          #+#    #+#             */
-/*   Updated: 2017/06/12 14:51:18 by ebouther         ###   ########.fr       */
+/*   Updated: 2017/06/21 15:22:38 by ebouther         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,8 +38,8 @@ static int	parse_blocks(void *ptr, t_block **blocks)
 }
 
 /*
-** For each zone search ptr in its blocks.
-** Unmap zone its blocks were all freed.
+**  For each zone search ptr in its blocks.
+**  Unmap zone its blocks were all freed.
 */
 
 static int	parse_zone(void *ptr, t_zone *zone, size_t zone_size)
